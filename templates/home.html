@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block css %}
+    {% if css_title:%}
+        <link href="{{ url_for('static', filename='css/' + css_title + '.css') }}" rel="stylesheet">
+    {% else %}
+        <link href="{{ url_for('static', filename='css/page.css') }}" rel="stylesheet">
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>{{title}}</h1>
+        <p>{{description}}</p>
+    </div>
+{% endblock %}

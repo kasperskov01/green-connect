@@ -1,12 +1,11 @@
 # app.py
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 # from flaskext.mysql import MySQL
 from flask_mysqldb import MySQL
 app = Flask(__name__)
 import db
 
-
-
+# MySQL connection
 app.config['MYSQL_HOST'] = 'ulsq0qqx999wqz84.chr7pe7iynqr.eu-west-1.rds.amazonaws.com'
 app.config['MYSQL_USER'] = 'g50mzk5bj9oqa059'
 app.config['MYSQL_PASSWORD'] = 'zsv3r6czm0t19cg4'
@@ -14,7 +13,56 @@ app.config['MYSQL_DB'] = 'ttujoaszacnortlw'
 
 mysql = MySQL(app)
 
+nav = [
+          {'name': 'Home', 'url': '/'},
+          {'name': 'Dimmer', 'url': '/dimmer'},
+          {'name': 'Meter reader', 'url': '/meter-reader'},
+          {'name': 'BMS', 'url': '/bms'}
+      ]
 
+# Routes
+@app.route('/')
+def home():
+    """Landing page."""
+    return render_template(
+        'home.html',
+        title="Hjem - GreenConnect",
+        css_title="home",
+        description="GreenConnect energy management",
+        nav=nav
+    )
+
+@app.route('/dimmer')
+def dimmer():
+    return render_template(
+        'dimmer.html',
+        title="Dimmer - GreenConnect",
+        css_title="dimmer",
+        description="Dimming",
+        nav=nav
+    )
+
+@app.route('/meter-reader')
+def meter_reader():
+    return render_template(
+        'meter-reader.html',
+        title="Meter Reader - GreenConnect",
+        css_title="meter_reader",
+        description="Meter Reader",
+        nav=nav
+    )
+
+@app.route('/bms')
+def bms():
+    return render_template(
+        'bms.html',
+        title="BMS - GreenConnect",
+        description="GreenConnect battery management system",
+        nav=nav
+    )
+
+
+# API
 @app.route('/getmsg/', methods=['GET'])
 def respond():
     # Retrieve the name from url parameter
@@ -60,27 +108,27 @@ def post_something():
 
 
 
-@app.route('/meter-readings-upload/', methods=['POST'])
+@app.route('/meter-readings/post/', methods=['GET'])
 def meter_readings_upload():    
-    data = db.get_meter_data(mysql)
+    consumption = request.args.get('consumption')
+    production = request.args.get('production')
+
+    status = db.post_meter_data(mysql, consumption, production)
+
     return jsonify({
-        "DATA": f"{data}",
-        "METHOD": "GET"
-    })
+            "STATUS": f"{status}",
+            "METHOD": "POST"
+        })
 
 @app.route('/meter-readings/', methods=['GET'])
 def meter_readings():    
+    meter_id = request.args.get("meter-id", None)
+
     data = db.get_meter_data(mysql)
     return jsonify({
         "DATA": f"{data}",
         "METHOD": "GET"
     })
-
-
-# A welcome message to test our server
-@app.route('/')
-def index():
-    return "<h1>Welcome to the Green-Connect API!</h1>"
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
