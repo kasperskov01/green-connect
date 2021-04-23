@@ -123,7 +123,19 @@ def api():
 def api_meter_readings_upload():    
     consumption = request.args.get('consumption')
     production = request.args.get('production')
+    try:
+        consumption = float(consumption)
+    except:
+        consumption = -1
 
+    try:
+        production = float(production)
+    except:
+        production = -1
+
+
+    if not float(consumption):
+        print("Not float")
     status = db.post_meter_data(mysql, consumption, production)
 
     return jsonify({
