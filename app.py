@@ -108,8 +108,19 @@ def post_something():
 
 
 
-@app.route('/meter-readings/post/', methods=['GET'])
-def meter_readings_upload():    
+@app.route('/api/', methods=['GET'])
+def api():        
+
+    status = "ONLINE"
+    message = "Welcome to the GreenConnect API!"
+    return jsonify({
+            "MESSAGE": f"{message}",
+            "STATUS": f"{status}",
+            "METHOD": "POST"
+        })
+
+@app.route('/api/meter-readings/post/', methods=['GET'])
+def api_meter_readings_upload():    
     consumption = request.args.get('consumption')
     production = request.args.get('production')
 
@@ -120,11 +131,35 @@ def meter_readings_upload():
             "METHOD": "POST"
         })
 
-@app.route('/meter-readings/', methods=['GET'])
-def meter_readings():    
+@app.route('/api/meter-readings/', methods=['GET'])
+def api_meter_readings():    
     meter_id = request.args.get("meter-id", None)
 
     data = db.get_meter_data(mysql)
+    return jsonify({
+        "DATA": f"{data}",
+        "METHOD": "GET"
+    })
+
+
+
+@app.route('/api/bms/post/', methods=['GET'])
+def api_bms_upload():    
+    voltage = request.args.get('voltage')
+    mode = request.args.get('mode')
+
+    status = db.post_bms_data(mysql, voltage, mode)
+
+    return jsonify({
+            "STATUS": f"{status}",
+            "METHOD": "POST"
+        })
+
+@app.route('/api/bms/', methods=['GET'])
+def api_bms():    
+    meter_id = request.args.get("meter-id", None)
+
+    data = db.get_bms_data(mysql)
     return jsonify({
         "DATA": f"{data}",
         "METHOD": "GET"
